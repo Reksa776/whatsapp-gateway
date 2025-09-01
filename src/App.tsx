@@ -1,23 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
-import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
-import Videos from "./pages/UiElements/Videos";
-import Images from "./pages/UiElements/Images";
-import Alerts from "./pages/UiElements/Alerts";
-import Badges from "./pages/UiElements/Badges";
-import Avatars from "./pages/UiElements/Avatars";
-import Buttons from "./pages/UiElements/Buttons";
-import LineChart from "./pages/Charts/LineChart";
-import BarChart from "./pages/Charts/BarChart";
-import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
-import Blank from "./pages/Blank";
+import { ProtectedRoute } from './components/middleware/protectedRoute';
+import { PublicRoute } from './components/middleware/PublicRoute';
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import DataUser from "./pages/DataUser/DataUser";
+import ListRole from "./pages/HakAkses/ListRole";
+import Perangkat from "./pages/Perangkat/Perangkat";
+import DaftarKategori from "./pages/Pesan/DaftarKategori";
+import DaftarGroup from "./pages/Pesan/DaftarGroup";
+import DaftarKontak from "./pages/Pesan/DaftarKontak";
+import DaftarPesan from "./pages/Pesan/DaftarPesan";
+import BalasOtomatis from "./pages/Pesan/BalasOtomatis";
+import JadwalPesan from "./pages/Pesan/JadwalPesan";
+import KirimPesan from "./pages/Pesan/KirimPesan";
+
 
 export default function App() {
   return (
@@ -26,39 +25,88 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
+          <Route index path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+
+            {/* dashboard */}
+            <Route index path="/dashboard" element={<ProtectedRoute role={["admin", "member"]}>
+              <Home />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/data-user" element={<ProtectedRoute role={["admin"]}>
+              <DataUser />
+            </ProtectedRoute>
+            } />
+
+            {/* List Role Page */}
+            <Route index path="/list-role" element={<ProtectedRoute role={["admin"]}>
+              <ListRole />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/Perangkat" element={<ProtectedRoute role={["admin", "member"]}>
+              <Perangkat />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/daftar-kategori" element={<ProtectedRoute role={["admin", "member"]}>
+              <DaftarKategori />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/daftar-group" element={<ProtectedRoute role={["admin", "member"]}>
+              <DaftarGroup />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/daftar-kontak" element={<ProtectedRoute role={["admin", "member"]}>
+              <DaftarKontak />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/daftar-pesan" element={<ProtectedRoute role={["admin", "member"]}>
+              <DaftarPesan />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/balas-otomatis" element={<ProtectedRoute role={["admin", "member"]}>
+              <BalasOtomatis />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/jadwal-pesan" element={<ProtectedRoute role={["admin", "member"]}>
+              <JadwalPesan />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/kirim-pesan" element={<ProtectedRoute role={["admin", "member"]}>
+              <KirimPesan />
+            </ProtectedRoute>} />
+
+
+            {/* Data User Page */}
+            <Route index path="/data-user" element={<ProtectedRoute role={["admin", "member"]}>
+              <DataUser />
+            </ProtectedRoute>} />
+
 
             {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
+            <Route path="/profile" element={<ProtectedRoute role={["admin", "member"]}>
+              <UserProfiles />
+            </ProtectedRoute>} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
-
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
           </Route>
-
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-
-          {/* Fallback Route */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </>

@@ -1,94 +1,142 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { MouseEventHandler, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
-  BoxCubeIcon,
-  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
   PlugInIcon,
-  TableIcon,
   UserCircleIcon,
+  LockIcon,
+  GroupIcon,
+  MailIcon,
+  DocsIcon,
+  PencilIcon,
+  UserIcon,
+  SettingIcon,
+  LogoutIcon,
+  StatisticsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
+import { jwtDecode } from "jwt-decode";
+const token = localStorage.getItem('token');
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
+};
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  window.location.href = '/';
 };
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
+    icon: <StatisticsIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/dashboard",
+  }
+];
+
+const userItems: NavItem[] = [
+  {
+    icon: <GroupIcon />,
+    name: "Data User",
+    path: "/data-user"
   },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
+    icon: <LockIcon />,
+    name: "Hak Akses",
     subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
+      { name: "List Role", path: "/list-role", pro: false },
     ],
   },
 ];
-
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
+const deviceItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
+    name: "Perangkat",
+    path: "/perangkat"
+  }
+];
+const messageItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Daftar Kategori",
+    path: "/daftar-kategori"
+  },
+  {
+    icon: <MailIcon />,
+    name: "Daftar Group",
+    path: "/daftar-group"
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Daftar Kontak",
+    path: "/daftar-kontak"
+  },
+  {
+    icon: <ListIcon />,
+    name: "Balas Otomatis",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/balas-otomatis"
+  },
+  {
+    icon: <PieChartIcon />,
+    name: "Jadwalkan Pesan",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/jadwal-pesan"
+  },
+  {
+    icon: <DocsIcon />,
+    name: "Daftar Pesan",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/daftar-pesan"
+  },
+  {
+    icon: <PencilIcon />,
+    name: "Kirim Pesan",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/kirim-pesan"
+  }
+];
+const profileItems: NavItem[] = [
+  {
+    icon: <UserIcon />,
+    name: "Profile Saya",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/profile"
+  },
+  {
+    icon: <LogoutIcon />,
+    name: "Logout",
+    // subItems: [
+    //   { name: "Line Chart", path: "/line-chart", pro: false },
+    //   { name: "Bar Chart", path: "/bar-chart", pro: false },
+    // ],
+    path: "/logout",
+    onClick: handleLogout
   },
 ];
 
@@ -97,7 +145,7 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main" | "user" | "device" | "message" | "profile";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -113,14 +161,14 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+    ["main", "user", "device", "message", "profile"].forEach((menuType) => {
+      const items = (menuType === "main") ? navItems : (menuType === "user") ? userItems : (menuType === "device") ? deviceItems : (menuType === "message") ? messageItems : profileItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others",
+                type: menuType as "main" | "user" | "device" | "message" | "profile",
                 index,
               });
               submenuMatched = true;
@@ -147,7 +195,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "user" | "device" | "message" | "profile") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -160,29 +208,26 @@ const AppSidebar: React.FC = () => {
     });
   };
 
-  const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
+  const renderMenuItems = (items: NavItem[], menuType: "main" | "user" | "device" | "message" | "profile") => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${
-                openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "menu-item-active"
-                  : "menu-item-inactive"
-              } cursor-pointer ${
-                !isExpanded && !isHovered
+              className={`menu-item group ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                ? "menu-item-active"
+                : "menu-item-inactive"
+                } cursor-pointer ${!isExpanded && !isHovered
                   ? "lg:justify-center"
                   : "lg:justify-start"
-              }`}
+                }`}
             >
               <span
-                className={`menu-item-icon-size  ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? "menu-item-icon-active"
-                    : "menu-item-icon-inactive"
-                }`}
+                className={`menu-item-icon-size  ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                  ? "menu-item-icon-active"
+                  : "menu-item-icon-inactive"
+                  }`}
               >
                 {nav.icon}
               </span>
@@ -191,12 +236,11 @@ const AppSidebar: React.FC = () => {
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                    openSubmenu?.type === menuType &&
+                  className={`ml-auto w-5 h-5 transition-transform duration-200 ${openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
-                      ? "rotate-180 text-brand-500"
-                      : ""
-                  }`}
+                    ? "rotate-180 text-brand-500"
+                    : ""
+                    }`}
                 />
               )}
             </button>
@@ -204,16 +248,15 @@ const AppSidebar: React.FC = () => {
             nav.path && (
               <Link
                 to={nav.path}
-                className={`menu-item group ${
-                  isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
+                onClick={nav.onClick}
+                className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
+                  }`}
               >
                 <span
-                  className={`menu-item-icon-size ${
-                    isActive(nav.path)
-                      ? "menu-item-icon-active"
-                      : "menu-item-icon-inactive"
-                  }`}
+                  className={`menu-item-icon-size ${isActive(nav.path)
+                    ? "menu-item-icon-active"
+                    : "menu-item-icon-inactive"
+                    }`}
                 >
                   {nav.icon}
                 </span>
@@ -241,32 +284,29 @@ const AppSidebar: React.FC = () => {
                   <li key={subItem.name}>
                     <Link
                       to={subItem.path}
-                      className={`menu-dropdown-item ${
-                        isActive(subItem.path)
-                          ? "menu-dropdown-item-active"
-                          : "menu-dropdown-item-inactive"
-                      }`}
+                      className={`menu-dropdown-item ${isActive(subItem.path)
+                        ? "menu-dropdown-item-active"
+                        : "menu-dropdown-item-inactive"
+                        }`}
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
+                            className={`ml-auto ${isActive(subItem.path)
+                              ? "menu-dropdown-badge-active"
+                              : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
                           >
                             new
                           </span>
                         )}
                         {subItem.pro && (
                           <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
+                            className={`ml-auto ${isActive(subItem.path)
+                              ? "menu-dropdown-badge-active"
+                              : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
                           >
                             pro
                           </span>
@@ -282,14 +322,14 @@ const AppSidebar: React.FC = () => {
       ))}
     </ul>
   );
+  const role = jwtDecode(token);
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200
+        ${isExpanded || isMobileOpen
+          ? "w-[290px]"
+          : isHovered
             ? "w-[290px]"
             : "w-[90px]"
         }
@@ -299,14 +339,16 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
+        className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+          }`}
       >
         <Link to="/">
+          {/* <>
+            <h2 className="text-2xl dark:text-gray-400">Whatsapp Server</h2>
+          </> */}
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              {/* <img
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
@@ -319,15 +361,17 @@ const AppSidebar: React.FC = () => {
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <h2 className="text-2xl dark:text-gray-400">Whatsapp Server</h2>
             </>
           ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
+            //   <img
+            //    src="/images/logo/logo-icon.svg"
+            //    alt="Logo"
+            //    width={32}
+            //    height={32}
+            //  /> 
+            <h2 className="text-2xl dark:text-gray-400">WA</h2>
           )}
         </Link>
       </div>
@@ -336,42 +380,88 @@ const AppSidebar: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                  ? "lg:justify-center"
+                  : "justify-start"
+                  }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  "Dashboard"
                 ) : (
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
+            {role.role === "admin" && (
+              <div className="">
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
                     ? "lg:justify-center"
                     : "justify-start"
-                }`}
+                    }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "User"
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(userItems, "user")}
+              </div>
+            )}
+
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                  ? "lg:justify-center"
+                  : "justify-start"
+                  }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
+                  "Perangkat"
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(deviceItems, "device")}
+            </div>
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                  ? "lg:justify-center"
+                  : "justify-start"
+                  }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Pesan"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(messageItems, "message")}
+            </div>
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                  ? "lg:justify-center"
+                  : "justify-start"
+                  }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Profile"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(profileItems, "profile")}
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );
 };
 
 export default AppSidebar;
+
