@@ -26,7 +26,7 @@ export default function AuthLayout({
                 />
               </Link>
               <p className="text-center text-gray-400 dark:text-white/60">
-                © 2025 Reksa. All rights reserved.
+                &copy; {new Date().getFullYear()} Reksa. All rights reserved.
               </p>
             </div>
           </div>

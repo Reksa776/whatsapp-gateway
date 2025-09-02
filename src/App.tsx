@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/AuthPages/SignIn";
 import UserProfiles from "./pages/UserProfiles";
 import { ProtectedRoute } from './components/middleware/protectedRoute';
@@ -16,99 +17,33 @@ import DaftarPesan from "./pages/Pesan/DaftarPesan";
 import BalasOtomatis from "./pages/Pesan/BalasOtomatis";
 import JadwalPesan from "./pages/Pesan/JadwalPesan";
 import KirimPesan from "./pages/Pesan/KirimPesan";
-
+import NotFound from "./pages/OtherPage/NotFound";
 
 export default function App() {
   return (
-    <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route index path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
-          <Route element={<AppLayout />}>
+    <Router>
+      <ScrollToTop />
+      <Routes>
+        {/* Public Route */}
+        <Route path="/" element={<PublicRoute><SignIn /></PublicRoute>} />
 
-            {/* dashboard */}
-            <Route index path="/dashboard" element={<ProtectedRoute role={["admin", "member"]}>
-              <Home />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/data-user" element={<ProtectedRoute role={["admin"]}>
-              <DataUser />
-            </ProtectedRoute>
-            } />
-
-            {/* List Role Page */}
-            <Route index path="/list-role" element={<ProtectedRoute role={["admin"]}>
-              <ListRole />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/Perangkat" element={<ProtectedRoute role={["admin", "member"]}>
-              <Perangkat />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/daftar-kategori" element={<ProtectedRoute role={["admin", "member"]}>
-              <DaftarKategori />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/daftar-group" element={<ProtectedRoute role={["admin", "member"]}>
-              <DaftarGroup />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/daftar-kontak" element={<ProtectedRoute role={["admin", "member"]}>
-              <DaftarKontak />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/daftar-pesan" element={<ProtectedRoute role={["admin", "member"]}>
-              <DaftarPesan />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/balas-otomatis" element={<ProtectedRoute role={["admin", "member"]}>
-              <BalasOtomatis />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/jadwal-pesan" element={<ProtectedRoute role={["admin", "member"]}>
-              <JadwalPesan />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/kirim-pesan" element={<ProtectedRoute role={["admin", "member"]}>
-              <KirimPesan />
-            </ProtectedRoute>} />
-
-
-            {/* Data User Page */}
-            <Route index path="/data-user" element={<ProtectedRoute role={["admin", "member"]}>
-              <DataUser />
-            </ProtectedRoute>} />
-
-
-            {/* Others Page */}
-            <Route path="/profile" element={<ProtectedRoute role={["admin", "member"]}>
-              <UserProfiles />
-            </ProtectedRoute>} />
-
-
-          </Route>
-        </Routes>
-      </Router>
-    </>
+        {/* Protected Routes with Layout */}
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<ProtectedRoute role={["admin", "member"]}><Home /></ProtectedRoute>} />
+          <Route path="/data-user" element={<ProtectedRoute role={["admin"]}><DataUser /></ProtectedRoute>} />
+          <Route path="/list-role" element={<ProtectedRoute role={["admin"]}><ListRole /></ProtectedRoute>} />
+          <Route path="/perangkat" element={<ProtectedRoute role={["admin", "member"]}><Perangkat /></ProtectedRoute>} />
+          <Route path="/daftar-kategori" element={<ProtectedRoute role={["admin", "member"]}><DaftarKategori /></ProtectedRoute>} />
+          <Route path="/daftar-group" element={<ProtectedRoute role={["admin", "member"]}><DaftarGroup /></ProtectedRoute>} />
+          <Route path="/daftar-kontak" element={<ProtectedRoute role={["admin", "member"]}><DaftarKontak /></ProtectedRoute>} />
+          <Route path="/daftar-pesan" element={<ProtectedRoute role={["admin", "member"]}><DaftarPesan /></ProtectedRoute>} />
+          <Route path="/balas-otomatis" element={<ProtectedRoute role={["admin", "member"]}><BalasOtomatis /></ProtectedRoute>} />
+          <Route path="/jadwal-pesan" element={<ProtectedRoute role={["admin", "member"]}><JadwalPesan /></ProtectedRoute>} />
+          <Route path="/kirim-pesan" element={<ProtectedRoute role={["admin", "member"]}><KirimPesan /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute role={["admin", "member"]}><UserProfiles /></ProtectedRoute>} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
