@@ -3,23 +3,28 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { getLogin } from "../../services/api";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 
 export default function SignInForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      setError('Email dan password wajib diisi');
+      return;
+    }
 
     try {
       const response = await getLogin(email, password);
       localStorage.setItem('token', response.data.token);
-      window.location.href = '/dashboard'; // Redirect to dashboard after successful login
+      window.location.href = '/dashboard';
     } catch (error) {
       console.log(error);
-      
       setError('Invalid username or password');
     }
   };
@@ -35,7 +40,7 @@ export default function SignInForm() {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Enter your email and password to sign in!
             </p>
-            {error && <p className="text-sm text-red-500 dark:text-red-400">Email Password Salah</p>}
+            {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
             <br />
             <p className="text-sm text-gray-500 dark:text-gray-400">Default Admin</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Email: admin@admin.com</p>
@@ -48,7 +53,12 @@ export default function SignInForm() {
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="info@gmail.com" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                    placeholder="info@gmail.com"
+                  />
                 </div>
                 <div>
                   <Label>
@@ -58,7 +68,7 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                     />
                     <span

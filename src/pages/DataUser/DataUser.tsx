@@ -10,10 +10,18 @@ import { useModal } from "../../hooks/useModal";
 import { deleteUser, getUser } from "../../services/api";
 import Swal from "sweetalert2";
 
+// ✅ Definisikan tipe User
+export interface UserType {
+  id: number;   // ubah, jangan string | number
+  name: string;
+  email: string;
+  role: string;
+}
+
 export default function DataUser() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [data, setData] = useState([]);
-  const token = localStorage.getItem('token');
+  const [data, setData] = useState<UserType[]>([]);
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -29,25 +37,27 @@ export default function DataUser() {
   }, []);
 
   const handleSuccess = () => {
-    closeModal();   // Tutup modal tambah
-    loadDB();       // Refresh tabel
+    closeModal(); // Tutup modal tambah
+    loadDB(); // Refresh tabel
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number | string) => {
     Swal.fire({
       title: "Ingin Menghapus User?",
       showCancelButton: true,
       confirmButtonText: "Hapus",
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         try {
           console.log("ID yang ingin dihapus:", id);
           console.log("Semua data sebelum filter:", data);
+
           setData((prev) => {
-            const newData = prev.filter((item) => item.id != id); // pakai != untuk antisipasi string vs number
+            const newData = prev.filter((item) => item.id != id);
             console.log("Data sesudah filter:", newData);
-          }); // Hapus dari UI
+            return newData; // ✅ harus return array
+          });
+
           await deleteUser(id, token);
           loadDB();
           Swal.fire("Berhasil Menghapus!", "", "success");
@@ -58,7 +68,6 @@ export default function DataUser() {
         }
       }
     });
-
   };
   return (
     <div>

@@ -1,12 +1,22 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
-
 import { jwtDecode } from "jwt-decode";
 
-export const ProtectedRoute = ({ children, role }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [data, setData] = useState([]);
+// Tipe data dari JWT payload (ubah sesuai payload aslimu)
+interface JwtPayload {
+  role: string;
+  [key: string]: any; // kalau ada field lain
+}
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+  role?: string[]; // role bisa berupa array string
+}
+
+export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [data, setData] = useState<JwtPayload | null>(null);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -24,21 +34,20 @@ export const ProtectedRoute = ({ children, role }) => {
   }, []);
 
   const loadRole = () => {
-    const response = jwtDecode(token);
-    setData(response)
-  }
+    if (!token) return;
+    const response = jwtDecode<JwtPayload>(token);
+    setData(response);
+  };
 
   if (isAuthenticated === null) return <div>Loading...</div>;
 
   if (isAuthenticated) {
-    if (role && !role.includes(data.role)) {
-      return <Navigate to="/dashboard" replace />; // Use Navigate instead of Redirect
+    if (role && data && !role.includes(data.role)) {
+      return <Navigate to="/dashboard" replace />;
     } else {
-      return children;
+      return <>{children}</>; // pakai fragment biar valid JSX
     }
   } else {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" replace />;
   }
-
-
 };

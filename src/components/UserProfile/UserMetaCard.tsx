@@ -6,36 +6,35 @@ import Label from "../form/Label";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import { useState } from "react";
-import { resetUser, resetUserPassword } from "../../services/api";
+import { resetUserPassword } from "../../services/api"; // ✅ hanya ini
 import ComponentCard from "../common/ComponentCard";
+
 const IMAGE_URL = "http://localhost:5000/uploads/";
+
+interface UserToken {
+  id: string;
+  email: string;
+  role: string;
+  image: string;
+}
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const [form, setForm] = useState({ password: "" });
-  const token = localStorage.getItem('token');
-  const data = jwtDecode(token);
-  console.log(data.id);
-  
 
-  const handleSubmit = async (e) => {
+  const token = localStorage.getItem("token") || "";
+  const data = jwtDecode<UserToken>(token);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await resetUserPassword(data.id, form, token);
-      Swal.fire({
-        title: "Berhasil Merubah Password",
-        icon: "success",
-        draggable: true
-      });
+      Swal.fire({ title: "Berhasil Merubah Password", icon: "success" });
       setForm({ password: "" });
       closeModal();
     } catch (error) {
       closeModal();
-      Swal.fire({
-        title: "Gagal Merubah Password",
-        icon: "error",
-        draggable: true
-      });
+      Swal.fire({ title: "Gagal Merubah Password", icon: "error" });
       console.error("Gagal menambah:", error);
     }
   };

@@ -112,6 +112,11 @@ export default function Buttons() {
             </Button>
           </div>
         </ComponentCard>
+        <ComponentCard title="Button with children prop">
+          <div className="flex items-center gap-5">
+            <Button type="button" children="Click me" size="sm" variant="primary" />
+          </div>
+        </ComponentCard>
       </div>
     </div>
   );

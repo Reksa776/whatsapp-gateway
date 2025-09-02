@@ -1,7 +1,27 @@
-export default function Sidebar({ contacts, active, onSelect }) {
-  function formatTime(ts) {
+// Definisikan tipe Contact
+interface Contact {
+  jid: string;
+  name: string;
+  lastText?: string;
+  lastTimestamp?: number | string;
+  lastMessage?: {
+    timestamp?: number | string;
+  };
+  unread?: boolean;
+}
+
+// Props untuk Sidebar
+interface SidebarProps {
+  contacts: Contact[];
+  active: string | null;
+  onSelect: (jid: string) => void;
+}
+
+export default function Sidebar({ contacts, active, onSelect }: SidebarProps) {
+  function formatTime(ts?: number | string) {
     if (!ts) return "";
-    let date;
+    let date: Date;
+
     // kalau timestamp dalam detik, kalikan 1000
     if (typeof ts === "number" && ts.toString().length === 10) {
       date = new Date(ts * 1000);
@@ -30,17 +50,17 @@ export default function Sidebar({ contacts, active, onSelect }) {
   }
 
   return (
-    <div className="w-1/4 border-r border-gray-300 bg-white">
-      <div className="p-3 font-semibold border-b">Daftar Pesan</div>
-      {contacts.map((c) => {
+    <div className="w-1/4 border-r border-gray-300 dark:border-black dark:bg-gray-800 bg-white">
+      <div className="p-3 font-semibold dark:text-white dark:border-black border-b">Daftar Pesan</div>
+      {contacts.map((c: Contact) => {
         const lastTimestamp = c.lastTimestamp || c?.lastMessage?.timestamp;
 
         return (
           <div
             key={c.jid}
             onClick={() => onSelect(c.jid)}
-            className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${
-              active === c.jid ? "bg-gray-100" : ""
+            className={`flex items-center p-3 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-100 ${
+              active === c.jid ? "bg-gray-300 dark:bg-gray-900" : ""
             }`}
           >
             {/* Avatar */}
@@ -62,14 +82,14 @@ export default function Sidebar({ contacts, active, onSelect }) {
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
                 <div
-                  className={`font-medium truncate ${
+                  className={`font-medium dark:text-white truncate ${
                     c.unread ? "font-bold" : ""
                   }`}
                 >
                   {c.name}
                 </div>
                 {lastTimestamp && (
-                  <div className="text-xs text-gray-500 ml-2">
+                  <div className="text-xs text-gray-200 ml-2">
                     {formatTime(lastTimestamp)}
                   </div>
                 )}

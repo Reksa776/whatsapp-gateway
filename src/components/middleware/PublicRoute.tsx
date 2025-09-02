@@ -2,8 +2,14 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-export const PublicRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+import { ReactNode } from 'react';
+
+interface PublicRouteProps {
+  children: ReactNode;
+}
+
+export const PublicRoute = ({ children }: PublicRouteProps) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');

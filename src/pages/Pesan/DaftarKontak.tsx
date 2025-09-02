@@ -10,10 +10,18 @@ import { useModal } from "../../hooks/useModal";
 import { deleteKontak, getKontak } from "../../services/api";
 import { useEffect, useState } from "react";
 
+interface KontakType {
+  id: number;
+  name: string; 
+  email: string;
+  nomor: string;
+  kategori: string;
+}
+
 export default function DaftarKontak() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [data, setData] = useState([]);
-  const token = localStorage.getItem('token');
+  const [data, setData] = useState<KontakType[]>([]); // ✅ kasih tipe
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -32,19 +40,19 @@ export default function DaftarKontak() {
     loadDB();       // Refresh tabel
   };
 
-  const handleDelete = async (id) => {
+   const handleDelete = async (id: number) => {  // ✅ kasih tipe number
     Swal.fire({
       title: "Ingin Menghapus User?",
       showCancelButton: true,
       confirmButtonText: "Hapus",
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         try {
           setData((prev) => {
-            const newData = prev.filter((item) => item.id != id); // pakai != untuk antisipasi string vs number
+            const newData = prev.filter((item) => item.id !== id);
             console.log("Data sesudah filter:", newData);
-          }); // Hapus dari UI
+            return newData;  // ✅ penting: return array baru
+          });
           await deleteKontak(id, token);
           loadDB();
           Swal.fire("Berhasil Menghapus!", "", "success");
@@ -55,7 +63,6 @@ export default function DaftarKontak() {
         }
       }
     });
-
   };
 
   return (

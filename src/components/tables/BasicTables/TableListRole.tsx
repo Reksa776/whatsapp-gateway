@@ -8,12 +8,15 @@ import {
 } from "../../ui/table";
 import { getListRole } from "../../../services/api";
 
-// import Badge from "../../ui/badge/Badge";
-
+// Definisikan tipe Role
+interface Role {
+  id: number;
+  name: string;
+}
 
 export default function TableListRole() {
-  const [listRole, setListRole] = useState([]);
-  const token = localStorage.getItem('token');
+  const [listRole, setListRole] = useState<Role[]>([]);
+const token = localStorage.getItem("token") ?? "";
 
   useEffect(() => {
     loadListRole();
@@ -23,8 +26,6 @@ export default function TableListRole() {
     const response = await getListRole(token);
     setListRole(response.data);
   };
-
-
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">

@@ -5,10 +5,16 @@ import { Link } from "react-router";
 import { jwtDecode } from "jwt-decode";
 const IMAGE_URL = "http://localhost:5000/uploads/";
 
+interface MyJwtPayload {
+  email?: string;
+  image?: string;
+  // add other properties as needed
+}
+
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const token = localStorage.getItem('token');
-  const data = jwtDecode(token);
+  const data: MyJwtPayload = token ? jwtDecode<MyJwtPayload>(token) : {};
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/';

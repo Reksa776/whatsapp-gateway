@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import ComponentCard from "../../common/ComponentCard";
 
 
 export default function QrInput() {
-  const [qrCode, setQrCode] = useState(null);
+  const [qrCode, setQrCode] = useState<string>("");
   const [status, setStatus] = useState("loading");
-  const [user, setUser] = useState({});
-  let title = "Memuat..."
+  interface User {
+    number?: string;
+    name?: string;
+  }
+  const [user, setUser] = useState<User>({});
 
   useEffect(() => {
     const fetchQR = async () => {
       try {
         const response = await axios.get("http://localhost:5000/qr");
         if (response.data.qr !== null) {
-          title = "Scan QR untuk login WhatsApp";
           setQrCode(response.data.qr);
           setStatus("scan");
           setUser(response.data.user)
         }else if (response.data.qr === null) {
-          title = "Whatsapp Terhubung ✅";
           setQrCode(response.data.qr);
           setStatus("connected");
           setUser(response.data.user)
         }else {
-          title = "Memuat...";
           setQrCode(response.data.qr);
           setStatus("loading");
           setUser(response.data.user)
@@ -43,7 +43,7 @@ export default function QrInput() {
   return (
 
     <div>
-      {status === "loading" && <ComponentCard title="Memuat..." />}
+      {status === "loading" && <ComponentCard title="Memuat..." children={undefined} />}
       {status === "scan" && (
         <>
           <ComponentCard title="Scan QR untuk login WhatsApp">
@@ -75,7 +75,7 @@ export default function QrInput() {
         </>
       )}
       {status === "error" && (
-        <ComponentCard title="Terjadi kesalahan!">
+        <ComponentCard title="Terjadi kesalahan!" children={undefined}>
 
         </ComponentCard>
       )}

@@ -10,10 +10,19 @@ import { useModal } from "../../hooks/useModal";
 import { getBalasOtomatis, deleteBalasOtomatis } from "../../services/api";
 import Swal from "sweetalert2";
 
+// ✅ Definisikan tipe data
+export interface BalasOtomatisType {
+  id: number;
+  nama: string;
+  perintah: string;
+  balasan: string;
+}
+
+
 export default function BalasOtomatis() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [data, setData] = useState([]);
-  const token = localStorage.getItem('token');
+  const [data, setData] = useState<BalasOtomatisType[]>([]);
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -29,33 +38,34 @@ export default function BalasOtomatis() {
   }, []);
 
   const handleSuccess = () => {
-    closeModal();   // Tutup modal tambah
-    loadDB();       // Refresh tabel
+    closeModal(); // Tutup modal tambah
+    loadDB(); // Refresh tabel
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | string) => {
     Swal.fire({
-          title: "Ingin Menghapus User?",
-          showCancelButton: true,
-          confirmButtonText: "Hapus",
-        }).then(async (result) => {
-          /* Read more about isConfirmed, isDenied below */
-          if (result.isConfirmed) {
-            try {
-              setData((prev) => {
-                const newData = prev.filter((item) => item.id != id); // pakai != untuk antisipasi string vs number
-                console.log("Data sesudah filter:", newData);
-              }); // Hapus dari UI
-              await deleteBalasOtomatis(id, token);
-              loadDB();
-              Swal.fire("Berhasil Menghapus!", "", "success");
-            } catch (error) {
-              Swal.fire("Gagal menghapus!", "", "error");
-              loadDB();
-              console.error("Gagal menghapus:", error);
-            }
-          }
-        });
+      title: "Ingin Menghapus Balas Otomatis?",
+      showCancelButton: true,
+      confirmButtonText: "Hapus",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setData((prev) => {
+            const newData = prev.filter((item) => item.id != id);
+            console.log("Data sesudah filter:", newData);
+            return newData; // ✅ harus return
+          });
+
+          await deleteBalasOtomatis(id, token);
+          loadDB();
+          Swal.fire("Berhasil Menghapus!", "", "success");
+        } catch (error) {
+          Swal.fire("Gagal menghapus!", "", "error");
+          loadDB();
+          console.error("Gagal menghapus:", error);
+        }
+      }
+    });
   };
 
   return (

@@ -7,13 +7,25 @@ import { updateBalasOtomatis } from "../../../services/api";
 import Swal from "sweetalert2";
 
 
-export default function FormEdit({ title, data, onSuccess }) {
+interface FormEditProps {
+  title: string;
+  data: {
+    id: string | number;
+    nama: string;
+    perintah: string;
+    balasan: string;
+    [key: string]: any;
+  };
+  onSuccess?: () => void;
+}
+
+export default function FormEdit({ title, data, onSuccess }: FormEditProps) {
   const [form, setForm] = useState({ ...data });
   console.log({ data });
-  const token = localStorage.getItem('token');
+const token = localStorage.getItem("token") ?? "";
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await updateBalasOtomatis(form.id, form, token);

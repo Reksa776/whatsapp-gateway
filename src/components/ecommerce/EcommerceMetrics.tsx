@@ -13,16 +13,18 @@ import { jwtDecode } from "jwt-decode";
 
 
 export default function EcommerceMetrics() {
-  const [kategori, setKategori] = useState([]);
-  const [group, setGroup] = useState([]);
-  const [kontak, setkontak] = useState([]);
-  const [balasOtomatis, setbalasOtomatis] = useState([]);
-  const [jadwalPesan, setjadwalPesan] = useState([]);
-  const [daftarPesan, setdaftarPesan] = useState([]);
-  const [user, setuser] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const token = localStorage.getItem('token');
-  const role = jwtDecode(token);
+  const [kategori, setKategori] = useState<any[]>([]);
+  const [group, setGroup] = useState<any[]>([]);
+  const [kontak, setkontak] = useState<any[]>([]);
+  const [balasOtomatis, setbalasOtomatis] = useState<any[]>([]);
+  const [jadwalPesan, setjadwalPesan] = useState<any[]>([]);
+  const [daftarPesan, setdaftarPesan] = useState<any[]>([]);
+  const [user, setuser] = useState<any[]>([]);
+  // Remove unused messages state
+  // const [messages, setMessages] = useState([]);
+  const token = localStorage.getItem('token') ?? ""; // Ensure token is always a string
+  // Fix jwtDecode type: use 'any' to access 'role'
+  const role = jwtDecode(token) as any;
 
   useEffect(() => {
     loadData();
@@ -33,7 +35,6 @@ export default function EcommerceMetrics() {
     try {
       const { data } = await API.get("/messages");
       const msgs = data?.messages || [];
-      setMessages(msgs);
 
 
       // ambil daftar kontak dari pesan
@@ -42,11 +43,12 @@ export default function EcommerceMetrics() {
         const name = await getKontak(token);
         const data = name.data;
         const nomorPengirim = m.from.replace("@s.whatsapp.net", "").trim();
-        const kontak = data.find(item => item.nomor === nomorPengirim);
+        // Explicitly type item as any
+        const kontak = data.find((item: any) => item.nomor === nomorPengirim);
         const kondisi = kontak ? kontak.name : nomorPengirim;
         const jid = m.from;
         const prev = contactMap.get(jid);
-        if (!prev || new Date(m.timestamp) > new Date(prev.lastTime)) {
+        if (!prev || new Date(m.timestamp as any).getTime() > new Date(prev.lastTime as any).getTime()) {
           contactMap.set(jid, {
             jid,
             name: kondisi,
@@ -58,7 +60,7 @@ export default function EcommerceMetrics() {
       // sort by last message
       setdaftarPesan(
         Array.from(contactMap.values()).sort(
-          (a, b) => new Date(b.lastTime) - new Date(a.lastTime)
+          (a: any, b: any) => new Date(b.lastTime as any).getTime() - new Date(a.lastTime as any).getTime()
         )
       );
 
@@ -74,7 +76,6 @@ export default function EcommerceMetrics() {
     const databalasOtomatis = await getBalasOtomatis(token);
     const datajadwalPesan = await getJadwalPesan(token);
     const datauser = await getUser(token);
-    const datadaftarPesan = await API.get("/messages");
     setKategori(datakategori.data);
     setGroup(datagroup.data);
     setkontak(datakontak.data);

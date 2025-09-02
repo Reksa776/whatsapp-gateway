@@ -7,10 +7,23 @@ import Button from "../../ui/button/Button";
 import Swal from "sweetalert2";
 
 
-export default function FormEdit({ title, data, onSuccess }) {
+interface FormEditProps {
+  title: string;
+  data: {
+    id: number;
+    name: string;
+    email: string;
+    nomor: string;
+    kategori: string;
+    [key: string]: any;
+  };
+  onSuccess?: () => void;
+}
+
+export default function FormEdit({ title, data, onSuccess }: FormEditProps) {
   const [form, setForm] = useState({ ...data });
-  const [kategori, setKategori] = useState([]);
-  const token = localStorage.getItem('token');
+  const [kategori, setKategori] = useState<{ id: number; kategori: string }[]>([]);
+  const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -25,7 +38,7 @@ export default function FormEdit({ title, data, onSuccess }) {
     loadDB();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await updateKontak(form.id, form, token);
@@ -34,7 +47,7 @@ export default function FormEdit({ title, data, onSuccess }) {
         icon: "success",
         draggable: true
       });
-      setForm({ kategori: "" });
+      setForm({ ...data });
       if (onSuccess) onSuccess(); // Tutup modal dan reload tabel
     } catch (error) {
       console.error("Gagal menambah:", error);

@@ -7,10 +7,19 @@ import Button from "../../ui/button/Button";
 import Swal from "sweetalert2";
 
 
-export default function FormTambah({ title, onSuccess }) {
-  const [form, setForm] = useState({ name: "", kategori: "", email: "", nomor: undefined });
-  const [kategori, setKategori] = useState([]);
-  const token = localStorage.getItem('token');
+interface FormTambahProps {
+  title: string;
+  onSuccess?: () => void;
+}
+
+export default function FormTambah({ title, onSuccess }: FormTambahProps) {
+  const [form, setForm] = useState({ name: "", kategori: "", email: "", nomor: undefined, pesan: "", tanggal: "", waktu: "" });
+  interface KategoriItem {
+    id: number;
+    kategori: string;
+  }
+  const [kategori, setKategori] = useState<KategoriItem[]>([]);
+  const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -25,7 +34,7 @@ export default function FormTambah({ title, onSuccess }) {
     loadDB();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await createJadwalPesan(form, token);
@@ -34,7 +43,7 @@ export default function FormTambah({ title, onSuccess }) {
         icon: "success",
         draggable: true
       });
-      setForm({ name: "", kategori: "", email: "", nomor: undefined });
+      setForm({ name: "", kategori: "", email: "", nomor: undefined, pesan: "", tanggal: "", waktu: "" });
       if (onSuccess) onSuccess(); // Tutup modal dan reload tabel
     } catch (error) {
       Swal.fire({

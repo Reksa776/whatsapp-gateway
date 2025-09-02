@@ -1,20 +1,25 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ReactLoading from "react-loading";
 import axios from "axios";
 import Label from "../../components/form/Label";
 import { getKontak } from "../../services/api";
 import Swal from "sweetalert2";
 
+interface Kontak {
+  id: number;
+  name: string;
+  nomor: string;
+}
 export default function KirimPesan() {
   const [nomor, setNomor] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState("text");
-  const [file, setFile] = useState(null);
-  const [contacts, setContacts] = useState([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [contacts, setContacts] = useState<Kontak[]>([]);
   const [loading, setLoading] = useState("page");
-  const token = localStorage.getItem('token');
+const token = localStorage.getItem("token") ?? "";
 
   // ✅ Ambil kontak dari database
   useEffect(() => {
@@ -26,7 +31,7 @@ export default function KirimPesan() {
     setContacts(response.data);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("nomor", nomor);
@@ -118,7 +123,11 @@ export default function KirimPesan() {
             {type !== "text" && (
               <input
                 type="file"
-                onChange={(e) => setFile(e.target.files[0])}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setFile(e.target.files[0]);
+                  }
+                }}
                 className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
               />
             )}

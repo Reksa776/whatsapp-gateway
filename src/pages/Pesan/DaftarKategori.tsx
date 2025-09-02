@@ -5,16 +5,23 @@ import TableKategori from "../../components/tables/BasicTables/TableKategori";
 import Button from "../../components/ui/button/Button";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../../components/ui/modal";
-import FormEdit from "../../components/form/form-kategori/FormEdit";
+// import FormEdit from "../../components/form/form-kategori/FormEdit"; // ❌ hapus atau komen kalau belum dipakai
 import FormTambah from "../../components/form/form-kategori/FormTambah";
 import { useEffect, useState } from "react";
 import { deleteKategori, getKategori } from "../../services/api";
 import Swal from "sweetalert2";
 
+// ✅ Definisikan tipe Kategori
+type KategoriType = {
+  id: number;
+  kategori: string;
+  [key: string]: any;
+};
+
 export default function DaftarKategori() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [data, setData] = useState([]);
-  const token = localStorage.getItem('token');
+  const [data, setData] = useState<KategoriType[]>([]); // ✅ kasih tipe
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -24,28 +31,30 @@ export default function DaftarKategori() {
       console.error("Gagal load data:", error);
     }
   };
+
   useEffect(() => {
     loadDB();
   }, []);
 
   const handleSuccess = () => {
-    closeModal();   // Tutup modal tambah
-    loadDB();       // Refresh tabel
+    closeModal();
+    loadDB();
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => { // ✅ kasih tipe number
     Swal.fire({
-      title: "Ingin Menghapus User?",
+      title: "Ingin Menghapus Kategori?",
       showCancelButton: true,
       confirmButtonText: "Hapus",
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         try {
           setData((prev) => {
-            const newData = prev.filter((item) => item.id != id); // pakai != untuk antisipasi string vs number
+            const newData = prev.filter((item) => item.id !== id);
             console.log("Data sesudah filter:", newData);
-          }); // Hapus dari UI
+            return newData; // ✅ wajib return array
+          });
+
           await deleteKategori(id, token);
           loadDB();
           Swal.fire("Berhasil Menghapus!", "", "success");
@@ -56,7 +65,6 @@ export default function DaftarKategori() {
         }
       }
     });
-
   };
 
   return (

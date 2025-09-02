@@ -5,13 +5,30 @@ import ChatWindow from "../../components/sideChat/ChatWindow";
 import API, { getKontak } from "../../services/api";
 import { useEffect, useRef, useState } from "react";
 
+interface Message {
+  id: string | number;
+  from: string;
+  text: string;
+  timestamp: string;
+  isSelf: boolean;
+}
+
+interface Contact {
+  jid: string;
+  name: string;
+  lastText: string;
+  lastTime: string;
+  unread: boolean;
+}
+type UnreadMap = Record<string, boolean>;
+
 export default function DaftarPesan() {
-  const [messages, setMessages] = useState([]);
-  const [contacts, setContacts] = useState([]);
-  const [active, setActive] = useState(null);
-  const [unreadMap, setUnreadMap] = useState({});
-  const pollRef = useRef(null);
-  const token = localStorage.getItem('token');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [active, setActive] = useState<string | null>(null);
+  const [unreadMap, setUnreadMap] = useState<UnreadMap>({});
+  const pollRef = useRef<NodeJS.Timeout | null>(null);
+const token = localStorage.getItem("token") ?? "";
 
   async function fetchMessages() {
     try {
@@ -25,7 +42,7 @@ export default function DaftarPesan() {
         const name = await getKontak(token);
         const data = name.data;
         const nomorPengirim = m.from.replace("@s.whatsapp.net", "").trim();
-        const kontak = data.find(item => item.nomor === nomorPengirim);
+        const kontak = data.find((item: { nomor: any; }) => item.nomor === nomorPengirim);
         const kondisi = kontak ? kontak.name : nomorPengirim;
         const jid = m.from;
         const prev = contactMap.get(jid);
@@ -42,7 +59,7 @@ export default function DaftarPesan() {
       // sort by last message
       setContacts(
         Array.from(contactMap.values()).sort(
-          (a, b) => new Date(b.lastTime) - new Date(a.lastTime)
+          (a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime()
         )
       );
     } catch (err) {
@@ -54,7 +71,9 @@ export default function DaftarPesan() {
   useEffect(() => {
     fetchMessages();
     pollRef.current = setInterval(fetchMessages, 2000);
-    return () => clearInterval(pollRef.current);
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
   }, []);
 
   // kalau ganti kontak aktif → tandai sudah dibaca

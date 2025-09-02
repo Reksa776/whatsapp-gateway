@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModal } from "../../../hooks/useModal";
 import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
@@ -10,21 +10,32 @@ import {
   TableRow,
 } from "../../ui/table";
 import FormEdit from "../../form/form-user/FormEdit";
-import { jwtDecode } from "jwt-decode";
 
-// import Badge from "../../ui/badge/Badge";
+// Tipe untuk User
+interface User {
+  id: number;
+  email: string;
+  password?: string;
+  image?: string;
+  role: string;
+}
+
+interface TableUserProps {
+  data: User[];
+  onDelete: (id: number) => void;
+  onEdit: () => void;
+}
+
 const IMAGE_URL = "http://localhost:5000/uploads/";
 
-export default function TableUser({ data = [], onDelete, onEdit }) {
+export default function TableUser({ data = [], onDelete, onEdit }: TableUserProps) {
   const { isOpen, openModal, closeModal } = useModal();
-  const [userEdit, setUserEdit] = useState({ id: 0, email: "", password: "" });
+  const [userEdit, setUserEdit] = useState<User | null>(null);
 
-  const handleEdit = (item) => {
+  const handleEdit = (item: User) => {
     setUserEdit(item);
     openModal();
   };
-
-
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -32,10 +43,19 @@ export default function TableUser({ data = [], onDelete, onEdit }) {
         isOpen={isOpen}
         onClose={closeModal}
         className="max-w-[700px] p-6 lg:p-10"
-      ><FormEdit title="Edit Kontak" data={userEdit} onSuccess={() => {
-        onEdit();
-        closeModal();
-      }} /></Modal>
+      >
+        {userEdit && (
+          <FormEdit
+            title="Edit User"
+            data={userEdit}
+            onSuccess={() => {
+              onEdit();
+              closeModal();
+            }}
+          />
+        )}
+      </Modal>
+
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[600px]">
           <Table>
@@ -91,13 +111,22 @@ export default function TableUser({ data = [], onDelete, onEdit }) {
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {item.role === "member" && (
                       <div className="flex items-center gap-1">
-                        <Button size="sm" onClick={() => handleEdit(item)} variant="warning">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleEdit(item)}
+                          variant="warning"
+                        >
                           Edit
                         </Button>
-                        <Button size="sm" onClick={() => onDelete(item.id)} variant="error">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => onDelete(item.id)}
+                          variant="error"
+                        >
                           Hapus
                         </Button>
-
                       </div>
                     )}
                   </TableCell>

@@ -7,10 +7,26 @@ import Swal from "sweetalert2";
 import { getKategori, updateGroup } from "../../../services/api";
 
 
-export default function FormEdit({ title, data, onSuccess }) {
+interface FormEditProps {
+  title: string;
+  data: {
+    id: string | number;
+    name: string;
+    kategori: string;
+    [key: string]: any;
+  };
+  onSuccess?: () => void;
+}
+
+export default function FormEdit({ title, data, onSuccess }: FormEditProps) {
   const [form, setForm] = useState({ ...data });
-  const [kategori, setKategori] = useState([]);
-  const token = localStorage.getItem('token');
+  interface KategoriItem {
+    id: string | number;
+    kategori: string;
+    [key: string]: any;
+  }
+  const [kategori, setKategori] = useState<KategoriItem[]>([]);
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -25,7 +41,7 @@ export default function FormEdit({ title, data, onSuccess }) {
     loadDB();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await updateGroup(form.id, form, token);
@@ -34,7 +50,7 @@ export default function FormEdit({ title, data, onSuccess }) {
         icon: "success",
         draggable: true
       });
-      setForm({ kategori: "" });
+      setForm({ ...form, kategori: "" });
       if (onSuccess) onSuccess(); // Tutup modal dan reload tabel
     } catch (error) {
       console.error("Gagal menambah:", error);

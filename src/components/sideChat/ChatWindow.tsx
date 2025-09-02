@@ -1,26 +1,42 @@
 import { useState } from "react";
 import API from "../../services/api";
 
-export default function ChatWindow({ jid, messages, onSent }) {
-  const [text, setText] = useState("");
-
-  async function sendMessage(e) {
-  e.preventDefault();
-  if (!text.trim()) return;
-  try {
-    await API.post("/send", { 
-      to: jid,        // harus "to" bukan "jid"
-      message: text   // harus "message" bukan "text"
-    });
-    setText("");
-    // kalau mau langsung tampilkan di UI tanpa tunggu socket:
-    // onSent?.({ text, isSelf: true, timestamp: Date.now() });
-  } catch (err) {
-    console.error(err);
-  }
+// Tipe data pesan
+interface Message {
+  id?: string | number;
+  text: string;
+  isSelf?: boolean;
+  timestamp?: number | string;
 }
 
-  function formatTime(ts) {
+// Props untuk ChatWindow
+interface ChatWindowProps {
+  jid: string | null;
+  messages: Message[];   // harus array, bukan object aneh tadi
+  onSent?: (msg: Message) => void;
+}
+
+export default function ChatWindow({ jid, messages, onSent }: ChatWindowProps) {
+  const [text, setText] = useState<string>("");
+
+  async function sendMessage(e: React.FormEvent) {
+    e.preventDefault();
+    if (!text.trim()) return;
+    try {
+      await API.post("/send", {
+        to: jid,        // harus "to" bukan "jid"
+        message: text   // harus "message" bukan "text"
+      });
+      setText("");
+
+      // kalau mau langsung tampilkan di UI tanpa tunggu socket:
+      onSent?.({ text, isSelf: true, timestamp: Date.now() });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function formatTime(ts?: number | string) {
     if (!ts) return "";
     const date = new Date(
       typeof ts === "number" && ts.toString().length === 10 ? ts * 1000 : ts
@@ -41,20 +57,18 @@ export default function ChatWindow({ jid, messages, onSent }) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-        {messages.map((m, index) => (
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900">
+        {messages.map((m: Message, index: number) => (
           <div
             key={m.id || index}
-            className={`flex flex-col mb-2 ${
-              m.isSelf ? "items-end" : "items-start"
-            }`}
+            className={`flex flex-col mb-2 ${m.isSelf ? "items-end" : "items-start"
+              }`}
           >
             <div
-              className={`px-3 py-2 rounded-lg max-w-xs ${
-                m.isSelf
-                  ? "bg-green-500 text-white"
-                  : "bg-white border border-gray-300"
-              }`}
+              className={`break-words px-3 py-2 rounded-lg max-w-xs ${m.isSelf
+                ? "bg-green-500 text-white"
+                : "bg-white border border-gray-300"
+                }`}
             >
               <div>{m.text}</div>
             </div>
@@ -66,12 +80,12 @@ export default function ChatWindow({ jid, messages, onSent }) {
       </div>
 
       {jid && (
-        <form onSubmit={sendMessage} className="p-3 border-t bg-white flex">
-          <input
-            className="flex-1 border rounded-lg px-3 py-2 mr-2"
+        <form onSubmit={sendMessage} className="p-3 break-words border-t bg-white flex">
+          <textarea
+            className="flex-1 break-words h-10 border rounded-lg px-3 py-2 mr-2"
             placeholder="Tulis pesan..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
           />
           <button className="bg-green-500 text-white px-4 rounded-lg">
             Kirim

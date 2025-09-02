@@ -7,11 +7,16 @@ import { createBalasOtomatis } from "../../../services/api";
 import Button from "../../ui/button/Button";
 import Swal from "sweetalert2";
 
-export default function FormTambah({ title, onSuccess }) {
-  const [form, setForm] = useState({ nama: "", perintah: "", balasan: "" });
-  const token = localStorage.getItem('token');
+interface FormTambahProps {
+  title: string;
+  onSuccess?: () => void;
+}
 
-  const handleSubmit = async (e) => {
+export default function FormTambah({ title, onSuccess }: FormTambahProps) {
+  const [form, setForm] = useState({ nama: "", perintah: "", balasan: "" });
+const token = localStorage.getItem("token") ?? "";
+
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await createBalasOtomatis(form, token);

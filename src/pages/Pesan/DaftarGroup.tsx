@@ -10,11 +10,21 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { deleteGroup, getGroup } from "../../services/api";
 
+// ✅ Definisikan tipe data Group
+// types/group.ts
+interface GroupType {
+  id: number;
+  name: string;
+  kategori: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 export default function DaftarGroup() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [data, setData] = useState([]);
-  const token = localStorage.getItem('token');
+  const [data, setData] = useState<GroupType[]>([]); // ✅ kasih tipe
+const token = localStorage.getItem("token") ?? "";
 
   const loadDB = async () => {
     try {
@@ -24,28 +34,30 @@ export default function DaftarGroup() {
       console.error("Gagal load data:", error);
     }
   };
+
   useEffect(() => {
     loadDB();
   }, []);
 
   const handleSuccess = () => {
-    closeModal();   // Tutup modal tambah
-    loadDB();       // Refresh tabel
+    closeModal();
+    loadDB();
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {  // ✅ kasih tipe
     Swal.fire({
-      title: "Ingin Menghapus User?",
+      title: "Ingin Menghapus Group?",
       showCancelButton: true,
       confirmButtonText: "Hapus",
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         try {
           setData((prev) => {
-            const newData = prev.filter((item) => item.id != id); // pakai != untuk antisipasi string vs number
+            const newData = prev.filter((item) => item.id !== id);
             console.log("Data sesudah filter:", newData);
-          }); // Hapus dari UI
+            return newData; // ✅ return array, bukan void
+          });
+
           await deleteGroup(id, token);
           loadDB();
           Swal.fire("Berhasil Menghapus!", "", "success");
@@ -56,7 +68,6 @@ export default function DaftarGroup() {
         }
       }
     });
-
   };
   return (
     <div>

@@ -7,11 +7,16 @@ import Button from "../../ui/button/Button";
 import Swal from "sweetalert2";
 
 
-export default function FormTambah({ title, onSuccess }) {
-  const [namaKategori, setNamaKategori] = useState({kategori: ""});
-  const token = localStorage.getItem('token');
+interface FormTambahProps {
+  title: string;
+  onSuccess?: () => void;
+}
 
-  const handleSubmit = async (e) => {
+export default function FormTambah({ title, onSuccess }: FormTambahProps) {
+  const [namaKategori, setNamaKategori] = useState({ kategori: "" });
+  const token = localStorage.getItem("token") ?? "";
+
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
       await createKategori(namaKategori, token);
@@ -20,7 +25,7 @@ export default function FormTambah({ title, onSuccess }) {
         icon: "success",
         draggable: true
       });
-      setNamaKategori({kategori: ""});
+      setNamaKategori({ kategori: "" });
       if (onSuccess) onSuccess(); // Tutup modal dan reload tabel
     } catch (error) {
       Swal.fire({
@@ -40,7 +45,7 @@ export default function FormTambah({ title, onSuccess }) {
         <div className="space-y-6">
           <div>
             <Label htmlFor="input">Nama Kategori</Label>
-            <Input type="text" id="input" placeholder="Nama Kategori" value={namaKategori.kategori} onChange={(e) => setNamaKategori({kategori: e.target.value})} />
+            <Input type="text" id="input" placeholder="Nama Kategori" value={namaKategori.kategori} onChange={(e) => setNamaKategori({ kategori: e.target.value })} />
           </div>
           <div className="flex justify-end">
             <Button type="submit" className="" size="sm" variant="primary">
