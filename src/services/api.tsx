@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://103.197.191.18:5000";
 
 // ===== AUTH =====
 export async function getLogin(email: string, password: string): Promise<AxiosResponse> {
@@ -94,7 +94,7 @@ export const getListRole = (token: string): Promise<AxiosResponse> =>
 
 // ===== GLOBAL API CLIENT =====
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://103.197.191.18:5000/api",
   timeout: 15000,
 });
 
