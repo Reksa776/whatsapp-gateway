@@ -22,7 +22,7 @@ export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
   useEffect(() => {
     if (token) {
       axios
-        .post('http://103.197.191.18:5000/login/protected', {}, {
+        .post('http://103.103.21.216:5000/login/protected', {}, {
           headers: { Authorization: token },
         })
         .then(() => setIsAuthenticated(true))
