@@ -26,7 +26,7 @@ interface TableUserProps {
   onEdit: () => void;
 }
 
-const IMAGE_URL = "http://localhost:5000/uploads/";
+const IMAGE_URL = "http://103.127.97.79:5000/uploads/";
 
 export default function TableUser({ data = [], onDelete, onEdit }: TableUserProps) {
   const { isOpen, openModal, closeModal } = useModal();
