@@ -41,7 +41,7 @@ const token = localStorage.getItem("token") ?? "";
 
     try {
       setLoading("loading")
-      await axios.post("http://localhost:5000/api/sending", formData, {
+      await axios.post("http://103.127.97.79:5000/api/sending", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setMessage("");
