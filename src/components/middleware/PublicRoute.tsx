@@ -15,7 +15,7 @@ export const PublicRoute = ({ children }: PublicRouteProps) => {
     const token = localStorage.getItem('token');
     if (token) {
       axios
-        .post('http://103.103.21.216/:5000/login/protected', {},{
+        .post('http://103.127.97.79:5000/login/protected', {},{
           headers: { Authorization: token },
         })
         .then(() => setIsAuthenticated(true))
