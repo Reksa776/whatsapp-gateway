@@ -3,7 +3,7 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { Link } from "react-router";
 import { jwtDecode } from "jwt-decode";
-const IMAGE_URL = "http://localhost:5000/uploads/";
+const IMAGE_URL = "http://103.127.97.79:5000/uploads/";
 
 interface MyJwtPayload {
   email?: string;
